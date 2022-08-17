@@ -15,13 +15,17 @@ const int pgo_r_pin     =  5;
 HardwareSerial FSkySerial(1);
 int control_mode_flag = 1; // Hand mode = 1
 
+double pitch_ctrl_effect, roll_ctrl_effect;
+double pitch_ctrl_effect_2, roll_ctrl_effect_2;
+double eilerons_ctrl, pgo_l_ctrl, pgo_r_ctrl;
+
 Servo eileron_l;  
 Servo eileron_r; 
 Servo pgo_l;
 Servo pgo_r;
 Servo engine;
 
-double servo_control[10] = {1500,1500,1000,1500,1500,1500,1000,1500,1500,1500};
+double servo_control[12] = {1500,1500,1000,1500,1500,1500,1000,1500,1500,1500,1500,1500};
 
 void init_control() {
   IBus.begin(FSkySerial);
@@ -52,6 +56,8 @@ void read_control() {
   read_chanel(7);
   read_chanel(8);
   read_chanel(9);
+  read_chanel(10);
+  read_chanel(11);
   control_mode_flag = (servo_control[6] > 1800 )? 3 : (servo_control[6] < 1200)? 1 : 2;
 }
 

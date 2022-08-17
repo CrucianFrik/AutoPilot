@@ -1,4 +1,4 @@
-#define CHANNELS_QUANITY 10
+#define CHANNELS_QUANITY 12
 
 class FlySkyIBus
 {
