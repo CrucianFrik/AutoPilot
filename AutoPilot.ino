@@ -1,5 +1,5 @@
 //test.ino
-
+#include "all_data.h"
 #include "src/mpu9250/I2Cdev.h"
 #include "src/mpu9250/MPU9250_9Axis_MotionApps41.h"
 #include "Wire.h"
@@ -13,6 +13,9 @@ Quaternion q,q_mag;
 
 #define DATA_UPD_PERIOD = 30 //millis
 #define DATA_READING_PERIOD = 10 //millis
+#define CTRL_SIGN_PERIOD = 50 //millis
+
+#define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
 
 long data_reading_timing=0;
 
@@ -30,15 +33,47 @@ SemaphoreHandle_t xBinarySemaphore;
 
 void control(void* pvParameters){
   while(true){
-  vTaskDelayUntil( &xLastWakeTime, ( 50 / portTICK_RATE_MS ) );
+    pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), curr_pitch);                         
+    roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), curr_roll);
+    
+    if(control_mode_flag == 1){
+      hand_control_mode();
+    }
 
-  if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS && millis()-data_reading_timing > DATA_UPD_PERIOD ) {
-    curr_roll = roll;
-    curr_pitch = pitch;
-    curr_yaw = yaw;
-    data_reading_timing = millis();
-    xSemaphoreGive(xBinarySemaphore);
-  }
+    else{
+      if(control_mode_flag == 2){
+        pitch_ctrl_effect = pitch_ctrl_effect_2;
+        roll_ctrl_effect  = roll_ctrl_effect_2;
+      }
+      
+      roll_ctrl_effect  = borders(1, -1, roll_ctrl_effect);
+      pitch_ctrl_effect = borders(1, -1, pitch_ctrl_effect);
+      
+      eilerons_ctrl = - 500*roll_ctrl_effect + 1500;
+      pgo_l_ctrl = - 0.7 * 500*(pitch_ctrl_effect - 0.06) + 1500;
+      pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.5) + 1500;
+
+      eilerons_ctrl = borders(2000, 1000, eilerons_ctrl);
+      pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
+      pgo_r_ctrl    = borders(2000, 1000, pgo_r_ctrl);
+      
+      engine.write(servo_control[2]);
+      eileron_l.write(eilerons_ctrl);
+      eileron_r.write(eilerons_ctrl);
+      pgo_l.write(pgo_l_ctrl);
+      pgo_r.write(pgo_r_ctrl);
+    }
+  
+    if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS && millis()-data_reading_timing > DATA_UPD_PERIOD ) {
+      curr_roll = roll;
+      curr_pitch = pitch;
+      curr_yaw = yaw;
+      data_reading_timing = millis();
+      xSemaphoreGive(xBinarySemaphore);
+      read_control();
+    }
+    
+    vTaskDelayUntil( &xLastWakeTime, ( CTRL_SIGN_PERIOD / portTICK_RATE_MS ) );
   }
 }
 
@@ -78,6 +113,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(5), dmpDataReady, RISING);
   mpuIntStatus = mpu.getIntStatus();
   packetSize = mpu.dmpGetFIFOPacketSize();
+
+  init_control(); 
   
   xBinarySemaphore = xSemaphoreCreateBinary();
   xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
