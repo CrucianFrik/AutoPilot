@@ -37,7 +37,6 @@ void control(void* pvParameters){
       eileron_r.write(eilerons_ctrl);
       pgo_l.write(pgo_l_ctrl);
       pgo_r.write(pgo_r_ctrl);
-
     }
     vTaskDelay(1);
   }
