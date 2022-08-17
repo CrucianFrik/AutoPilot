@@ -13,14 +13,7 @@ const int pgo_r_pin     =  5;
 
 
 HardwareSerial FSkySerial(1);
-
-double roll_ctrl_effect_2, pitch_ctrl_effect_2, pitch_target_2;
-double roll_ctrl_effect_3, pitch_ctrl_effect_3, roll_target_3, pitch_target_3;
-double roll_ctrl_effect_4, pitch_ctrl_effect_4, roll_target_4, pitch_target_4;
-double roll_ctrl_effect, pitch_ctrl_effect, roll_target, pitch_target, vy_target;
-
-double eilerons_ctrl, pgo_l_ctrl, pgo_r_ctrl;
-int control_flag = 1; // Hand mode = 1
+int control_mode_flag = 1; // Hand mode = 1
 
 Servo eileron_l;  
 Servo eileron_r; 
@@ -59,7 +52,7 @@ void read_control() {
   read_chanel(7);
   read_chanel(8);
   read_chanel(9);
-  control_flag = (servo_control[6] > 1800 )? 3 : (servo_control[6] < 1200)? 1 : 2;
+  control_mode_flag = (servo_control[6] > 1800 )? 3 : (servo_control[6] < 1200)? 1 : 2;
 }
 
 void hand_control_mode(){
