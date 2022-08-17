@@ -1,5 +1,5 @@
-#include "mpu9250/I2Cdev.h"
-#include "mpu9250/MPU9250_9Axis_MotionApps41.h"
+#include "src/mpu9250/I2Cdev.h"
+#include "src/mpu9250/MPU9250_9Axis_MotionApps41.h"
 #include "Wire.h"
 
 MPU9250 mpu;
