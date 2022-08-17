@@ -1,5 +1,5 @@
-#include "I2Cdev.h"
-#include "MPU9250_9Axis_MotionApps41.h"
+#include "mpu9250/I2Cdev.h"
+#include "mpu9250/MPU9250_9Axis_MotionApps41.h"
 #include "Wire.h"
 
 MPU9250 mpu;
@@ -57,14 +57,7 @@ void loop() {
             roll=atan2(2*(q.w*q.x+q.y*q.z),1-2*(q.x*q.x+q.y*q.y))* 180/M_PI;
             pitch=-asin(2*(q.w*q.y-q.x*q.z))* 180/M_PI;
             yaw=atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z))* 180/M_PI;
-            Serial.print(roll);
-            Serial.print(" ");
-            Serial.print(pitch);
-            Serial.print(" ");
-            Serial.println(yaw);
-            long t_current=millis();
-            Serial.println(t_current-timing);
-            timing=t_current;
+            
 
 
     }
