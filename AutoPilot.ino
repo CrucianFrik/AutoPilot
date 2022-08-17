@@ -11,7 +11,7 @@ Quaternion q,q_mag;
 
 
 
-long time=0;
+long timing=0;
 
 volatile bool mpuInterrupt = false;
 void dmpDataReady() {
@@ -63,8 +63,8 @@ void loop() {
             Serial.print(" ");
             Serial.println(yaw);
             long t_current=millis();
-            Serial.println(t_current-time);
-            time=t_current;
+            Serial.println(t_current-timing);
+            timing=t_current;
 
 
     }
