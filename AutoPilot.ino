@@ -57,6 +57,7 @@ void loop() {
             roll=atan2(2*(q.w*q.x+q.y*q.z),1-2*(q.x*q.x+q.y*q.y))* 180/M_PI;
             pitch=-asin(2*(q.w*q.y-q.x*q.z))* 180/M_PI;
             yaw=atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z))* 180/M_PI;
+            Serial.println(roll)
             
 
 
