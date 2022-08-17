@@ -3,19 +3,19 @@
 TaskHandle_t Task1;
 TaskHandle_t Task2;
 SemaphoreHandle_t xBinarySemaphore;
-double pitch = 0.0, roll = 0.0;
-
+double pitch = 0.0, roll = 0.0; 
 #define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
 
 void control(void* pvParameters){
   while(true){
     read_control();
+    // >>>> UPDATE CONTROL EFFECTS
     pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), pitch);                         
-    roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), roll);
+    roll_ctrl_effect_2  = roll_pid.ctrl(-((servo_control[9] - 1500.0) * (45.0/500.0)), roll);
+    // <<<< UPDATE CONTROL EFFECTS
     if(control_mode_flag == 1){
       hand_control_mode();
     }
-
     else{
       if(control_mode_flag == 2){
         pitch_ctrl_effect = pitch_ctrl_effect_2;
@@ -24,11 +24,11 @@ void control(void* pvParameters){
       roll_ctrl_effect  = borders(1, -1, roll_ctrl_effect);
       pitch_ctrl_effect = borders(1, -1, pitch_ctrl_effect);
       
-      eilerons_ctrl = -500*roll_ctrl_effect + 1500;
-      pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect - 0.06) + 1500;
-      pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.5) + 1500;
+      eilerons_ctrl = 500*roll_ctrl_effect + 1500;
+      pgo_l_ctrl = -0.7 * 500*pitch_ctrl_effect + 1500;
+      pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.3) + 1500;
 
-      eilerons_ctrl = borders(2000, 1000, eilerons_ctrl);
+      eilerons_ctrl = -borders(2000, 1000, eilerons_ctrl);
       pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
       pgo_r_ctrl    = borders(2000, 1000, pgo_r_ctrl);
       
@@ -44,6 +44,8 @@ void control(void* pvParameters){
 
 void data_update(void* pvParameters){
   while(true){
+    pitch = ((servo_control[10] - 1500.0) * (45.0/500.0));
+    roll  = ((servo_control[11] - 1500.0) * (45.0/500.0));
   vTaskDelay(1);
   }
 }
