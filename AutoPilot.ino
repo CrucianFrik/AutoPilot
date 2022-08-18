@@ -1,10 +1,7 @@
 //test.ino
 #include "src/hand_control/all_data.h"
-#include "src/mpu9250/I2Cdev.h"
-#include "src/mpu9250/MPU9250_9Axis_MotionApps41.h"
+#include "src/mpu9250/mpu9250_wrapper.h"
 #include "Wire.h"
-
-MPU9250 mpu;
 
 uint8_t mpuIntStatus,devStatus,fifoBuffer[64];
 uint16_t packetSize,fifoCount,mag[3];
@@ -22,9 +19,6 @@ volatile bool mpuInterrupt = false;
 void dmpDataReady() {
     mpuInterrupt = true;
 }
-
-double roll,pitch,yaw;
-double curr_roll, curr_pitch, curr_yaw;
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
@@ -65,7 +59,6 @@ void control(void* pvParameters){
       pgo_r.write(pgo_r_ctrl);
     }
     vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
-//    vTaskDelay(1);
   }
 }
 
@@ -74,8 +67,8 @@ void data_update(void* pvParameters){
   xLastWakeTime = xTaskGetTickCount();
   while(true){
     Serial.println("data_update");
-  vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
-//  vTaskDelay(1);
+    get_mpu9250_data();
+    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
 
@@ -92,13 +85,14 @@ void setup() {
   packetSize = mpu.dmpGetFIFOPacketSize();
 
   init_control(); 
+  init_mpu9250();
   
   xBinarySemaphore = xSemaphoreCreateBinary();
   xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
   delay(5000);
   xTaskCreatePinnedToCore(control,"control",10000,NULL,10,&Task1,1); 
-//  delay(500);
-//  xSemaphoreGive(xBinarySemaphore); 
+  delay(500);
+  xSemaphoreGive(xBinarySemaphore); 
 }
 
 void loop(){}

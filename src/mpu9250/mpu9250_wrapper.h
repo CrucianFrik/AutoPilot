@@ -31,10 +31,8 @@ void init_mpu9250(){
 }
 
 void get_mpu9250_data(){
-    while (!mpuInterrupt && fifoCount < packetSize) {
-        
-    }
-
+    double curr_roll, curr_pitch, curr_yaw;
+    while (!mpuInterrupt && fifoCount < packetSize) {}
     mpuInterrupt = false;
     mpuIntStatus = mpu.getIntStatus();
     fifoCount = mpu.getFIFOCount();
@@ -45,9 +43,17 @@ void get_mpu9250_data(){
         mpu.getFIFOBytes(fifoBuffer, packetSize);
         fifoCount -= packetSize;
         mpu.dmpGetQuaternion(&q, fifoBuffer);
+            curr_roll=-atan2(2*(q.w*q.x+q.y*q.z),1-2*(q.x*q.x+q.y*q.y))* 180/M_PI;
+            curr_pitch=asin(2*(q.w*q.y-q.x*q.z))* 180/M_PI;
+            curr_yaw=atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z))* 180/M_PI;
 
-            roll=-atan2(2*(q.w*q.x+q.y*q.z),1-2*(q.x*q.x+q.y*q.y))* 180/M_PI;
-            pitch=asin(2*(q.w*q.y-q.x*q.z))* 180/M_PI;
-            yaw=atan2(2*(q.w*q.z+q.x*q.y),1-2*(q.y*q.y+q.z*q.z))* 180/M_PI;
+        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
+          //  if (curr_pitch==curr_pitch && curr_roll==curr_roll && curr_yaw==curr_yaw){
+                roll = curr_roll;
+                pitch = curr_pitch;
+                yaw = curr_yaw;
+          //  }
+            xSemaphoreGive(xBinarySemaphore);
+        }        
     }
 }
