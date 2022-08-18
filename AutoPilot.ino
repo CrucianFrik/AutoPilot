@@ -1,5 +1,5 @@
 //test.ino
-#include "src/hand_control/all_data.h"
+//#include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
 
 #define DATA_UPT_TASK_PERIOD  1 //millis
@@ -15,8 +15,9 @@ void control(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   while(true){
-    Serial.println("control");
-    vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
+//    Serial.println("control");
+//    vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
+       vTaskDelay(1);
   }
 }
 
@@ -24,17 +25,19 @@ void data_update(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   while(true){
-    Serial.println("data_update");
-    VectorFloat angles = get_mpu9250_data();
-    if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+//    Serial.println("data_update");
+    get_mpu9250_data();
+   // if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-            roll = angles.x;
-            pitch = angles.y;
-            yaw = angles.z;
+//            roll = 1;//angles.x;
+//            pitch =1;// angles.y;
+//            yaw = 1;//angles.z;
+            Serial.println(String(pitch) + " " + String(roll));
             xSemaphoreGive(xBinarySemaphore);
         }       
-    }
-    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
+   // }
+   vTaskDelay(1);
+//    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
 
