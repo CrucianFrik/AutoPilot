@@ -31,9 +31,9 @@ FsFile file;
 #endif  //SPI_DRIVER_SELECT
 
 
-String HEADER = "TIME,ROLL,PITCH,YAW";
+String HEADER = "TIME,ROLL,PITCH,YAW,BAR_ALT,BAR_VY";
 
-void sd_init(){
+void init_sd(){
     sd.begin(SD_CONFIG);
 }
 
