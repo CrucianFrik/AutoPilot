@@ -14,6 +14,11 @@ TaskHandle_t Task2;
 TaskHandle_t Task3;
 SemaphoreHandle_t xBinarySemaphore;
 
+//globals control/log core
+float roll_core1=0.0;
+float pitch_core1=0.0;
+float yaw_core1=0.0;
+
 String filestr;
 
 void control(void* pvParameters){
@@ -30,17 +35,17 @@ void logs(void* pvParameters){
   float current_roll=0.0,current_pitch=0.0,current_yaw=0.0;
   while(true){
     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-      current_pitch=pitch;
-      current_roll=roll;
-      current_yaw=yaw;
+      pitch_core1=pitch;
+      roll_core1=roll;
+      yaw_core1=yaw;
       xSemaphoreGive(xBinarySemaphore);
     }    
     //log stream creation
     String log_data="";
     log_data+=String(millis())+",";
-    log_data+=String(current_roll)+",";
-    log_data+=String(current_pitch)+",";
-    log_data+=String(current_yaw);
+    log_data+=String(roll_core1)+",";
+    log_data+=String(pitch_core1)+",";
+    log_data+=String(yaw_core1);
     //log string write
     sd_write(filestr, log_data+"\n");
     vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
