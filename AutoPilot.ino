@@ -1,6 +1,7 @@
 //test.ino
 //#include "src/hand_control/all_data.h"
-#include "src/mpu9250/mpu9250_wrapper.h"
+#include "src/mpu9250_and_bmp/mpu9250_wrapper.h"
+#include "src/mpu9250_and_bmp/bmp180.h"
 #include "src/sd/SdFat_wrapper.h"
 
 #define DATA_UPT_TASK_PERIOD  1 //millis

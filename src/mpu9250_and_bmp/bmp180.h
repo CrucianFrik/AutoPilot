@@ -1,7 +1,7 @@
 #ifndef BMP180_H
 #define BMP180_H
-#include "Wire.h"
-#include "I2Cdev.h"
+// #include "Wire.h"
+// #include "I2Cdev.h"
 #include <vector>
 #include "Adafruit_BMP085.h"
 
