@@ -19,8 +19,11 @@ void dmpDataReady() {
 double roll,pitch,yaw;
 
 void init_mpu9250(){
+    #ifdef I2C
+    #define I2C
     Wire.begin();
     Wire.setClock(400000);
+    #endif
     mpu.initialize();
     pinMode(2, INPUT);
     devStatus = mpu.dmpInitialize();
