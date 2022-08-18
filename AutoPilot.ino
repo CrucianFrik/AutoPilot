@@ -18,6 +18,8 @@ SemaphoreHandle_t xBinarySemaphore;
 float roll_core1=0.0;
 float pitch_core1=0.0;
 float yaw_core1=0.0;
+float altitude_core1;
+float altitude;
 
 String filestr;
 
@@ -38,6 +40,7 @@ void logs(void* pvParameters){
       pitch_core1=pitch;
       roll_core1=roll;
       yaw_core1=yaw;
+      altitude_core1 = altitude;
       xSemaphoreGive(xBinarySemaphore);
     }    
     //log stream creation
@@ -57,14 +60,16 @@ void data_update(void* pvParameters){
   xLastWakeTime = xTaskGetTickCount();
   while(true){
     VectorFloat angles =  get_mpu9250_data();
-   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
-      if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-        roll = angles.x;
-        pitch = angles.y;
-        yaw = angles.z;
-        xSemaphoreGive(xBinarySemaphore);
-        }       
-   }
+    float altitude_ = alt();
+    if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
+          roll = angles.x;
+          pitch = angles.y;
+          yaw = angles.z;
+          altitude = altitude_;
+          xSemaphoreGive(xBinarySemaphore);
+          }       
+    }
    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
@@ -76,6 +81,8 @@ void setup() {
   init_mpu9250();
   sd_init();
   sd_write(filestr, HEADER+"\n");
+
+  init_bmp();
   
   xBinarySemaphore = xSemaphoreCreateBinary();
   xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
