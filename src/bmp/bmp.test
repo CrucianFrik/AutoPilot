@@ -1,0 +1,12 @@
+#include "bmp180.h"
+
+void setup()
+{
+    init_bmp();
+}
+
+void loop()
+{
+   double altitude = alt();
+}
+
