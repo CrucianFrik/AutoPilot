@@ -1,6 +1,7 @@
 //test.ino
 //#include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
+#include "src/sd/SdFat_wrapper.h"
 
 #define DATA_UPT_TASK_PERIOD  1 //millis
 #define CONTROL_TASK_PERIOD   1 //millis
@@ -24,12 +25,16 @@ void control(void* pvParameters){
 }
 
 void logs(void* pvParameters){
-  if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-    sd_write(filestr, String(roll)+" "+String(pitch)+"\n");
-    Serial.println(String(pitch) + " " + String(roll));
-    xSemaphoreGive(xBinarySemaphore);
-  }    
-  vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
+  portTickType xLastWakeTime;
+  xLastWakeTime = xTaskGetTickCount();
+  while(true){
+    if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
+      sd_write(filestr, String(roll)+" "+String(pitch)+"\n");
+      Serial.println(String(pitch) + " " + String(roll));
+      xSemaphoreGive(xBinarySemaphore);
+    }    
+    vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
+  }
 }
 
 void data_update(void* pvParameters){
@@ -51,10 +56,7 @@ void data_update(void* pvParameters){
 
 void setup() {
   Serial.begin(115200);
-  EEPROM.begin(EEPROM_SIZE);
-  filenumber = EEPROM.read(0);
-  if ((filenumber<0) or (filenumber>256)){ filenumber=0; }
-  filestr="/log_"+String(filenumber)+".txt";
+  filestr="/data.txt";
 
   init_mpu9250();
   sd_init();

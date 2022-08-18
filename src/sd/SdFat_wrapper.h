@@ -34,8 +34,8 @@ void sd_init(){
     sd.begin(SD_CONFIG);
 }
 
-void sd_write(char filename[],char data[]){
-    file.open(filename, O_RDWR | O_CREAT | O_AT_END);
-    file.println(data);
+void sd_write(String filename, String data){
+    file.open(filename.c_str(), O_RDWR | O_CREAT | O_AT_END);
+    file.println(data.c_str());
     file.close();
 }
