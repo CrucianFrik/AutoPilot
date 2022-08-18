@@ -30,6 +30,9 @@ FsFile file;
 #error SPI_DRIVER_SELECT must be two in SdFat/SdFatConfig.h
 #endif  //SPI_DRIVER_SELECT
 
+
+String HEADER = "TIME,ROLL,PITCH,YAW"
+
 void sd_init(){
     sd.begin(SD_CONFIG);
 }
@@ -39,3 +42,4 @@ void sd_write(String filename, String data){
     file.println(data.c_str());
     file.close();
 }
+

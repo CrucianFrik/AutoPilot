@@ -29,8 +29,14 @@ void logs(void* pvParameters){
   xLastWakeTime = xTaskGetTickCount();
   while(true){
     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-      sd_write(filestr, String(roll)+" "+String(pitch)+"\n");
-      Serial.println(String(pitch) + " " + String(roll));
+      //log stream creation
+      String log_data="";
+      log_data+=String(millis())+",";
+      log_data+=String(roll)+",";
+      log_data+=String(pitch)+",";
+      log_data+=String(yaw);
+      //log string write
+      sd_write(filestr, log_data+"\n");
       xSemaphoreGive(xBinarySemaphore);
     }    
     vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
@@ -60,6 +66,7 @@ void setup() {
 
   init_mpu9250();
   sd_init();
+  sd_write(filestr, HEADER+"\n");
   
   xBinarySemaphore = xSemaphoreCreateBinary();
   xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
