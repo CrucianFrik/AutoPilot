@@ -27,7 +27,9 @@ void control(void* pvParameters){
 void logs(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
-  float current_roll=0.0,current_pitch=0.0,current_yaw=0.0;
+  float current_roll=0.0;
+  float current_pitch=0.0;
+  float current_yaw=0.0;
   while(true){
     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
       current_pitch=pitch;
