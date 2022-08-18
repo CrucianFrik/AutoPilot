@@ -1,7 +1,7 @@
 #ifndef PID_SETTINGS_H
 #define PID_SETTINGS_H
 
-#include "PID.h"
+#include "pid.h"
 
 // Vertical speed
 #define CY_P 6.0
