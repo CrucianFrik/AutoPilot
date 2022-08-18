@@ -1,5 +1,5 @@
 //test.ino
-#include "src/hand_control/all_data.h"
+//#include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
 
 #define DATA_UPT_TASK_PERIOD  1 //millis
