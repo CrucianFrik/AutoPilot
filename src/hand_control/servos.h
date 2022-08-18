@@ -3,6 +3,7 @@
 
 #include <ESP32Servo.h>
 #include "FlySkyIBus.h"
+#include "PID_settings.h"
 
 #define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
 

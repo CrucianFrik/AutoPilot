@@ -1,5 +1,5 @@
 //test.ino
-//#include "src/hand_control/all_data.h"
+#include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
 #include "src/sd/SdFat_wrapper.h"
 
