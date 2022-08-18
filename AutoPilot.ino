@@ -25,15 +25,15 @@ void data_update(void* pvParameters){
   xLastWakeTime = xTaskGetTickCount();
   while(true){
     Serial.println("data_update");
-    if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-          VectorFloat angles = get_mpu9250_data();
-          if (curr_pitch==curr_pitch && curr_roll==curr_roll && curr_yaw==curr_yaw){
+    VectorFloat angles = get_mpu9250_data();
+    if (curr_pitch==curr_pitch && curr_roll==curr_roll && curr_yaw==curr_yaw){
+      if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
             roll = angles.x;
             pitch = angles.y;
             yaw = angles.z;
-          }
             xSemaphoreGive(xBinarySemaphore);
         }       
+    }
     vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
