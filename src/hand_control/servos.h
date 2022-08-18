@@ -3,6 +3,7 @@
 
 #include <ESP32Servo.h>
 #include "FlySkyIBus.h"
+#include "PID_settings.h"
 
 #define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
 
@@ -71,9 +72,9 @@ void hand_control_mode(){
    engine.write(servo_control[2]);
 }
 
-void stabilization_mode_data_update(double pitch, double roll){
-  pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), pitch);                         
-  roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), roll);
+void stabilization_mode_data_update(double pitch_, double roll_){
+  pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), pitch_);                         
+  roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), roll_);
 }
 
 void control_servos(){
@@ -96,6 +97,7 @@ void control_servos(){
     pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
     pgo_r_ctrl    = borders(2000, 1000, pgo_r_ctrl);
     
+    Serial.println(eilerons_ctrl);
     engine.write(servo_control[2]);
     eileron_l.write(eilerons_ctrl);
     eileron_r.write(eilerons_ctrl);
