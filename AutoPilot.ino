@@ -16,6 +16,11 @@ SemaphoreHandle_t xBinarySemaphore;
 
 String filestr;
 
+//global variables core control/log
+float current_roll=0.0;
+float current_pitch=0.0;
+float current_yaw=0.0;
+
 void control(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
@@ -27,10 +32,9 @@ void control(void* pvParameters){
 void logs(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
-  float current_roll=0.0;
-  float current_pitch=0.0;
-  float current_yaw=0.0;
+  
   while(true){
+    //надо будет обновление данных на этом ядре перекинуть в задание управления
     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
       current_pitch=pitch;
       current_roll=roll;
