@@ -3,7 +3,7 @@
 #include "Wire.h"
 #include "I2Cdev.h"
 #include <vector>
-#include <Adafruit_BMP085.h>
+#include "Adafruit_BMP085.h"
 
 #include "Filters.h"
 
