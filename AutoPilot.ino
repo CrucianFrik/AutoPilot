@@ -1,7 +1,6 @@
 //test.ino
 #include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
-#include "Wire.h"
 
 uint8_t mpuIntStatus,devStatus,fifoBuffer[64];
 uint16_t packetSize,fifoCount,mag[3];
@@ -73,16 +72,7 @@ void data_update(void* pvParameters){
 }
 
 void setup() {
-  Wire.begin();
-  Wire.setClock(400000);
   Serial.begin(115200);
-  mpu.initialize();
-  pinMode(5, INPUT);
-  devStatus = mpu.dmpInitialize();
-  mpu.setDMPEnabled(true);
-  attachInterrupt(digitalPinToInterrupt(5), dmpDataReady, RISING);
-  mpuIntStatus = mpu.getIntStatus();
-  packetSize = mpu.dmpGetFIFOPacketSize();
 
   init_control(); 
   init_mpu9250();
