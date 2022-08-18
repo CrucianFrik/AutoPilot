@@ -1,5 +1,5 @@
 //test.ino
-//#include "src/hand_control/all_data.h"
+#include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
 
 #define DATA_UPT_TASK_PERIOD  1 //millis
@@ -26,7 +26,7 @@ void data_update(void* pvParameters){
   while(true){
     Serial.println("data_update");
     VectorFloat angles = get_mpu9250_data();
-    if (curr_pitch==curr_pitch && curr_roll==curr_roll && curr_yaw==curr_yaw){
+    if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
             roll = angles.x;
             pitch = angles.y;
