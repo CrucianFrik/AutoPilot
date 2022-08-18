@@ -15,9 +15,7 @@ void control(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   while(true){
-//    Serial.println("control");
-//    vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
-       vTaskDelay(1);
+    vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
 
@@ -25,19 +23,17 @@ void data_update(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   while(true){
-//    Serial.println("data_update");
-    get_mpu9250_data();
-   // if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+    VectorFloat angles =  get_mpu9250_data();
+   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-//            roll = 1;//angles.x;
-//            pitch =1;// angles.y;
-//            yaw = 1;//angles.z;
+        roll = angles.x;
+        pitch = angles.y;
+        yaw = angles.z;
             Serial.println(String(pitch) + " " + String(roll));
             xSemaphoreGive(xBinarySemaphore);
         }       
-   // }
-   vTaskDelay(1);
-//    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
+   }
+    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
 
