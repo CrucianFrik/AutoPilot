@@ -2,11 +2,6 @@
 #include "src/hand_control/all_data.h"
 #include "src/mpu9250/mpu9250_wrapper.h"
 
-uint8_t mpuIntStatus,devStatus,fifoBuffer[64];
-uint16_t packetSize,fifoCount,mag[3];
-float f_mag[3],d_mag[4];
-Quaternion q,q_mag;
-
 #define DATA_UPT_TASK_PERIOD  1 //millis
 #define CONTROL_TASK_PERIOD   1 //millis
 
