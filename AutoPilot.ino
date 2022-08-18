@@ -27,18 +27,22 @@ void control(void* pvParameters){
 void logs(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
+  float current_roll=0.0,current_pitch=0.0,current_yaw=0.0;
   while(true){
     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-      //log stream creation
-      String log_data="";
-      log_data+=String(millis())+",";
-      log_data+=String(roll)+",";
-      log_data+=String(pitch)+",";
-      log_data+=String(yaw);
-      //log string write
-      sd_write(filestr, log_data+"\n");
+      current_pitch=pitch;
+      current_roll=roll;
+      current_yaw=yaw;
       xSemaphoreGive(xBinarySemaphore);
     }    
+    //log stream creation
+    String log_data="";
+    log_data+=String(millis())+",";
+    log_data+=String(current_roll)+",";
+    log_data+=String(current_pitch)+",";
+    log_data+=String(current_yaw);
+    //log string write
+    sd_write(filestr, log_data+"\n");
     vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
