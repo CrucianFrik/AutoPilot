@@ -4,6 +4,8 @@
 #include <ESP32Servo.h>
 #include "FlySkyIBus.h"
 
+#define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
+
 const int antenaPin     = 39;
 const int engine_Pin    = 13;
 const int eileron_l_pin = 19;
@@ -67,6 +69,39 @@ void hand_control_mode(){
    pgo_l.write(servo_control[1]);
    pgo_r.write(servo_control[4]);
    engine.write(servo_control[2]);
+}
+
+void stabilization_mode_data_update(double pitch, double roll){
+  pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), pitch);                         
+  roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), roll);
+}
+
+void control_servos(){
+  if(control_mode_flag == 1){
+    hand_control_mode();
+  }
+  else{
+    if(control_mode_flag == 2){
+       pitch_ctrl_effect = pitch_ctrl_effect_2;
+       roll_ctrl_effect  = roll_ctrl_effect_2;
+    }
+    roll_ctrl_effect  = borders(1, -1, roll_ctrl_effect);
+    pitch_ctrl_effect = borders(1, -1, pitch_ctrl_effect);
+    
+    eilerons_ctrl = -500*roll_ctrl_effect + 1500;
+    pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect - 0.06) + 1500;
+    pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.5) + 1500;
+
+    eilerons_ctrl = borders(2000, 1000, eilerons_ctrl);
+    pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
+    pgo_r_ctrl    = borders(2000, 1000, pgo_r_ctrl);
+    
+    engine.write(servo_control[2]);
+    eileron_l.write(eilerons_ctrl);
+    eileron_r.write(eilerons_ctrl);
+    pgo_l.write(pgo_l_ctrl);
+    pgo_r.write(pgo_r_ctrl);
+  }
 }
 
 #endif
