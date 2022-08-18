@@ -3,16 +3,17 @@
 #include "src/mpu9250_and_bmp/mpu9250_wrapper.h"
 #include "src/mpu9250_and_bmp/bmp180.h"
 #include "src/sd/SdFat_wrapper.h"
+#include "src/gps/gps.h"
 
-#define DATA_UPT_TASK_PERIOD  1 //millis
+#define DATA_UPT_TASK_PERIOD  1  //millis
 #define CONTROL_TASK_PERIOD   10 //millis
-#define LOG_TASK_PERIOD   10 //millis
+#define LOG_TASK_PERIOD       10 //millis
 
 #define borders(Max, Min, val) (val > Max)? Max : (val < Min)? Min : val
 
 TaskHandle_t Task1;
 TaskHandle_t Task2;
- TaskHandle_t Task3;
+TaskHandle_t Task3;
 SemaphoreHandle_t xBinarySemaphore;
 
 //globals control/log core
@@ -22,12 +23,16 @@ float yaw_core1=0.0;
 float altitude_core1;
 float altitude, altitude_;
 
+double latitude, longitude;
 String filestr;
 
 void control(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   while(true){
+    update_gps();
+    latitude  = lat();
+    longitude = lng();
     read_control();                    // read IBas data
     stabilization_mode_data_update(pitch, roll);
     control_servos();
@@ -53,7 +58,10 @@ void control(void* pvParameters){
      log_data+=String(roll_core1)+",";
      log_data+=String(pitch_core1)+",";
      log_data+=String(yaw_core1)+",";
-     log_data+=String(altitude_core1);
+     log_data+=String(altitude_core1)+",";
+     log_data+=String(latitude, 9)+",";
+     log_data+=String(longitude, 9);
+
      //log string write
      sd_write(filestr, log_data+"\n");
      vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
@@ -65,15 +73,14 @@ void data_update(void* pvParameters){
   xLastWakeTime = xTaskGetTickCount();
   while(true){
     VectorFloat angles =  get_mpu9250_data();
-//    float altitude_ = alt();
-//    if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
         roll = angles.x;
         pitch = angles.y;
         yaw = angles.z;
         altitude = altitude_;
         xSemaphoreGive(xBinarySemaphore);
-//      }
+     }
        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
          altitude_ = alt();
          xSemaphoreGive(xBinarySemaphore);
@@ -86,10 +93,10 @@ void data_update(void* pvParameters){
 void setup() {
   Serial.begin(115200);
   filestr="/data.txt";
-
+  init_gps();
   init_mpu9250();
-   sd_init();
-   sd_write(filestr, HEADER+"\n");
+  sd_init();
+  sd_write(filestr, HEADER+"\n");
 
   init_bmp(); 
 
