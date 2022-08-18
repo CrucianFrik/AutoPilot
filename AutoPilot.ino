@@ -48,7 +48,8 @@ void logs(void* pvParameters){
     log_data+=String(millis())+",";
     log_data+=String(roll_core1)+",";
     log_data+=String(pitch_core1)+",";
-    log_data+=String(yaw_core1);
+    log_data+=String(yaw_core1)+",";
+    log_data+=String(altitude_core1);
     //log string write
     sd_write(filestr, log_data+"\n");
     vTaskDelayUntil( &xLastWakeTime, ( LOG_TASK_PERIOD / portTICK_RATE_MS ) );
