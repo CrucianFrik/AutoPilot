@@ -11,7 +11,7 @@ const int antenaPin     = 39;
 const int engine_Pin    = 13;
 const int eileron_l_pin = 19;
 const int eileron_r_pin = 18;
-const int pgo_l_pin     = 23;
+const int pgo_l_pin     = 15;
 const int pgo_r_pin     =  5;
 
 
@@ -96,8 +96,8 @@ void control_servos(){
     pitch_ctrl_effect = borders(1, -1, pitch_ctrl_effect);
     
     eilerons_ctrl = -500*roll_ctrl_effect + 1500;
-    pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect - 0.06) + 1500;
-    pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.5) + 1500;
+    pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect + 0.5) + 1500;
+    pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.35) + 1500;
 
     eilerons_ctrl = borders(2000, 1000, eilerons_ctrl);
     pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
