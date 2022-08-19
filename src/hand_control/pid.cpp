@@ -1,11 +1,11 @@
 #include "pid.h"
 // 
 PID::PID(double p, double i, double d, double (*time_func)()){
-    set_pid(p,i,d);
+    set(p,i,d);
     sys_time = time_func;
 }
 
-void PID::set_pid(double pp, double ii, double dd) {
+void PID::set(double pp, double ii, double dd) {
     p = pp;
     i = ii;
     d = dd;

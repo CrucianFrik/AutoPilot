@@ -28,6 +28,8 @@ Servo pgo_l;
 Servo pgo_r;
 Servo engine;
 
+double new_pitch_p = 0.005, new_roll_p = 0.02;
+
 double servo_control[12] = {1500,1500,1000,1500,1500,1500,1000,1500,1500,1500,1500,1500};
 
 void init_control() {
@@ -78,6 +80,10 @@ void stabilization_mode_data_update(double pitch_, double roll_){
 }
 
 void control_servos(){
+  new_pitch_p = 0.005 + ((servo_control[11] - 1000.0))/1000.0*0.02;
+  new_roll_p = 0.02 + ((servo_control[10] - 1500.0))/1000.0*0.01;
+  pitch_pid.set(new_pitch_p, 0.0, 0.0);
+  roll_pid.set(new_roll_p, 0.0, 0.0000025);
   if(control_mode_flag == 1){
     hand_control_mode();
   }
@@ -97,7 +103,7 @@ void control_servos(){
     pgo_l_ctrl    = borders(2000, 1000, pgo_l_ctrl);
     pgo_r_ctrl    = borders(2000, 1000, pgo_r_ctrl);
     
-    Serial.println(eilerons_ctrl);
+    // Serial.println(eilerons_ctrl);
     engine.write(servo_control[2]);
     eileron_l.write(eilerons_ctrl);
     eileron_r.write(eilerons_ctrl);

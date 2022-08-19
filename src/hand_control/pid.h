@@ -5,7 +5,7 @@ class PID {
   public:
     PID(double p, double i, double d, double (*time_func)()); 
     double ctrl(double req, double cur); // req - required; cur - current;
-    void set_pid(double pp, double ii, double dd);
+    void set(double pp, double ii, double dd);
     void reset();
     void set_pid_borders(double max_val, double min_val);
     

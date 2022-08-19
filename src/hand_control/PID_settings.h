@@ -16,7 +16,7 @@
 #define ROLL_I 0.0
 #define ROLL_D 0.0000025
 // Pitch
-#define PITCH_P 0.012
+#define PITCH_P 0.005
 #define PITCH_I 0.0
 #define PITCH_D 0.0//7//00002
 

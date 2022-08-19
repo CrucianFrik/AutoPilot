@@ -26,6 +26,6 @@
 String HEADER = "TIME" 
                       + logs_def(ANGELS_LOG_FLAG, ",ROLL,PITCH,YAW")
                       + logs_def(ALTITUDE_LOG_FLAG, ",ALT")
-                      + logs_def(INIT_GPS, ",LAT,LNG");
+                      + logs_def(INIT_GPS, ",LAT,LNG") + String(",PITCH_P,ROLL_P");
 
 #endif //AVES_INITS _H
