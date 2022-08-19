@@ -28,6 +28,9 @@ float altitude, altitude_;
 double latitude, longitude;
 String filestr;
 
+//Baro/gyro flag
+int bar_flag = 0;
+
 
 void control(void* pvParameters){
   portTickType xLastWakeTime;
@@ -79,26 +82,45 @@ void data_update(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
 
-  int bar_flag = 0;
+  
   while(true){
-    VectorFloat angles =  get_mpu9250_data();
-   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+    bar_flag = (bar_flag+1)%5; // update counter
+
+    if (bar_flag==0){ //read baro
+      float altitude_core0=alt()
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-        if (!bar_flag)
-          altitude = altitude_;
-        else{
+         altitude_ = altitude_core0;
+         xSemaphoreGive(xBinarySemaphore);
+       } 
+    }
+    else{ //read gyro
+        VectorFloat angles =  get_mpu9250_data();
+        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
           roll = angles.x;
           pitch = angles.y;
           yaw = angles.z;
-        }
-        bar_flag = (bar_flag+1)%5;
         xSemaphoreGive(xBinarySemaphore);
-     }
-       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-         altitude_ = alt();
-         xSemaphoreGive(xBinarySemaphore);
-       } 
-   }
+        }
+          
+    }
+    
+  //  if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+  //     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
+  //       if (!bar_flag)
+  //         altitude = altitude_;
+  //       else{
+  //         roll = angles.x;
+  //         pitch = angles.y;
+  //         yaw = angles.z;
+  //       }
+  //       bar_flag = (bar_flag+1)%5;
+  //       xSemaphoreGive(xBinarySemaphore);
+  //    }
+  //      if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
+  //        altitude_ = alt();
+  //        xSemaphoreGive(xBinarySemaphore);
+  //      } 
+  //  }
    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
