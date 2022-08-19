@@ -9,7 +9,7 @@ FlySkyIBus IBus;
 
 void FlySkyIBus::begin(HardwareSerial& serial)
 {
-  serial.begin(115200, SERIAL_8N1, 39, 32); //RX TX 
+  serial.begin(115200);
   begin((Stream&)serial);
 }
 
