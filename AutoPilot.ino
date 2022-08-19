@@ -84,10 +84,15 @@ void data_update(void* pvParameters){
 
   
   while(true){
+<<<<<<< Updated upstream
     bar_flag = (bar_flag+1)%5; // update counter
 
     if (bar_flag==0){ //read baro
       float altitude_core0=alt()
+=======
+   VectorFloat angles =  get_mpu9250_data();
+   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
+>>>>>>> Stashed changes
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
          altitude = altitude_core0;
          xSemaphoreGive(xBinarySemaphore);
@@ -110,7 +115,7 @@ void data_update(void* pvParameters){
 void setup() {
   Serial.begin(115200);
   filestr="/data.txt";
-  if(INIT_GPS){init_gps(); delay_piezo(1000)}
+  if(INIT_GPS){init_gps(); delay_piezo(1000);}
   init_mpu9250();
   if(INIT_ALL_LOGS){sd_init(); sd_write(filestr, HEADER+"\n"); delay_piezo(100);}
   delay(1000);
