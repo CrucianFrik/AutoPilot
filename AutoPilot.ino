@@ -6,6 +6,7 @@
 #include "src/gps/gps.h"
 #include "src/piezo/piezo.h"
 #include "init.h"
+#include "Filter.h"
 
 #define DATA_UPT_TASK_PERIOD  1  //millis
 #define CONTROL_TASK_PERIOD   10 //millis
@@ -27,6 +28,9 @@ float altitude;
 
 double latitude, longitude;
 String filestr;
+
+Filter Rollfilter{0.15, 0.07};
+Filter PitchFilter{0.15, 0.07};
 
 //Baro/gyro flag
 int bar_flag = 0;
@@ -84,15 +88,10 @@ void data_update(void* pvParameters){
 
   
   while(true){
-<<<<<<< Updated upstream
     bar_flag = (bar_flag+1)%5; // update counter
 
     if (bar_flag==0){ //read baro
       float altitude_core0=alt()
-=======
-   VectorFloat angles =  get_mpu9250_data();
-   if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
->>>>>>> Stashed changes
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
          altitude = altitude_core0;
          xSemaphoreGive(xBinarySemaphore);
@@ -101,8 +100,8 @@ void data_update(void* pvParameters){
     else{ //read gyro
         VectorFloat angles =  get_mpu9250_data();
         if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-          roll = angles.x;
-          pitch = angles.y;
+          roll = Rollfilter.get_filtered(angles.x);
+          pitch = PitchFilter.get_filtered(angles.y);
           yaw = angles.z;
         xSemaphoreGive(xBinarySemaphore);
         }
@@ -123,11 +122,11 @@ void setup() {
   init_control();
   
   xBinarySemaphore = xSemaphoreCreateBinary();
-  xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
+  xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,1);
   delay(5000);
-  xTaskCreatePinnedToCore(control,"control",10000,NULL,10,&Task1,1); 
+  xTaskCreatePinnedToCore(control,"control",10000,NULL,10,&Task1,0); 
   delay(500);
-   xTaskCreatePinnedToCore(logs,"logs",10000,NULL,9,&Task3,1); 
+   xTaskCreatePinnedToCore(logs,"logs",10000,NULL,9,&Task3,0); 
    delay(500);
   xSemaphoreGive(xBinarySemaphore); 
 }
