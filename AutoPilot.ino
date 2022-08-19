@@ -23,7 +23,7 @@ float roll_core1=0.0;
 float pitch_core1=0.0;
 float yaw_core1=0.0;
 float altitude_core1;
-float altitude, altitude_;
+float altitude;
 
 double latitude, longitude;
 String filestr;
@@ -89,7 +89,7 @@ void data_update(void* pvParameters){
     if (bar_flag==0){ //read baro
       float altitude_core0=alt()
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-         altitude_ = altitude_core0;
+         altitude = altitude_core0;
          xSemaphoreGive(xBinarySemaphore);
        } 
     }
@@ -103,24 +103,6 @@ void data_update(void* pvParameters){
         }
           
     }
-    
-  //  if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
-  //     if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-  //       if (!bar_flag)
-  //         altitude = altitude_;
-  //       else{
-  //         roll = angles.x;
-  //         pitch = angles.y;
-  //         yaw = angles.z;
-  //       }
-  //       bar_flag = (bar_flag+1)%5;
-  //       xSemaphoreGive(xBinarySemaphore);
-  //    }
-  //      if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-  //        altitude_ = alt();
-  //        xSemaphoreGive(xBinarySemaphore);
-  //      } 
-  //  }
    vTaskDelayUntil( &xLastWakeTime, ( DATA_UPT_TASK_PERIOD / portTICK_RATE_MS ) );
   }
 }
