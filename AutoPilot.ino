@@ -78,14 +78,20 @@ void control(void* pvParameters){
 void data_update(void* pvParameters){
   portTickType xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
+
+  int bar_flag = 0;
   while(true){
     VectorFloat angles =  get_mpu9250_data();
    if (angles.x==angles.x && angles.y==angles.y && angles.z==angles.z){
       if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
-        roll = angles.x;
-        pitch = angles.y;
-        yaw = angles.z;
-        altitude = altitude_;
+        if (!bar_flag)
+          altitude = altitude_;
+        else{
+          roll = angles.x;
+          pitch = angles.y;
+          yaw = angles.z;
+        }
+        bar_flag = (bar_flag+1)%5;
         xSemaphoreGive(xBinarySemaphore);
      }
        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdPASS) {
