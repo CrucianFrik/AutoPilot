@@ -26,33 +26,35 @@ String filestr;
 
 void control(void* pvParameters){
   portTickType xLastWakeTime;
-  xLastWakeTime = xTaskGetTickCount();
+  xLastWakeTime = xTaskGetTickCount();\
+  int log_flag = 0;
   while(true){
     // update_gps();
     // latitude  = lat();
     // longitude = lng();
 
-    if(INIT_ALL_LOGS){
+    if(INIT_ALL_LOGS && !log_flag){
       String log_data="";
       log_data += String(millis());
       // log_data += SEP + String(roll);
       log_data += SEP + String(pitch);
-//      log_data += SEP + String(yaw);
+  //      log_data += SEP + String(yaw);
       log_data += SEP + String(altitude);
       // if(INIT_GPS){
       //   log_data += SEP + String(latitude, 9);
       //   log_data += SEP +  String(longitude, 9);
       // }
       log_data += SEP + String(new_pitch_p, 5) + SEP + String(new_roll_p, 5);
-
+  
       //log string write
       sd_write(filestr, log_data + END_SEP);
      }
+     log_flag = (log_flag+1)%20;
 
     read_control();                    // read IBas data
-    stabilization_mode_data_update(pitch, roll);
+    stabilization_mode_data_update(pitch, roll, bmp_vertical_speed);
     control_servos();
-    vTaskDelayUntil( &xLastWakeTime, ( CONTROL_TASK_PERIOD / portTICK_RATE_MS ) );
+    vTaskDelay(1);
   }
 }
 
@@ -90,9 +92,9 @@ void setup() {
   init_control();
   
   xBinarySemaphore = xSemaphoreCreateBinary();
-  xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,0);
+  xTaskCreatePinnedToCore(data_update,"data_update",10000,NULL,10,&Task2,1);
   delay(5000);
-  xTaskCreatePinnedToCore(control,"control",10000,NULL,10,&Task1,1); 
+  xTaskCreatePinnedToCore(control,"control",10000,NULL,10,&Task1,0); 
   delay(500);
   xSemaphoreGive(xBinarySemaphore); 
 }

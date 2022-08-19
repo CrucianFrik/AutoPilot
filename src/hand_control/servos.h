@@ -11,8 +11,8 @@ const int antenaPin     = 39;
 const int engine_Pin    = 13;
 const int eileron_l_pin = 19;
 const int eileron_r_pin = 18;
-const int pgo_l_pin     = 15;
-const int pgo_r_pin     =  5;
+const int pgo_l_pin     = 23;
+const int pgo_r_pin     =  4;
 
 
 HardwareSerial FSkySerial(1);
@@ -20,6 +20,7 @@ int control_mode_flag = 1; // Hand mode = 1
 
 double pitch_ctrl_effect, roll_ctrl_effect;
 double pitch_ctrl_effect_2, roll_ctrl_effect_2;
+double pitch_ctrl_effect_3, roll_ctrl_effect_3, pitch_target_3;
 double eilerons_ctrl, pgo_l_ctrl, pgo_r_ctrl;
 
 Servo eileron_l;  
@@ -29,6 +30,8 @@ Servo pgo_r;
 Servo engine;
 
 double new_pitch_p = 0.005, new_roll_p = 0.02;
+double trim_1 = 0.06, trim_2 = 0.05;
+
 
 double servo_control[12] = {1500,1500,1000,1500,1500,1500,1000,1500,1500,1500,1500,1500};
 
@@ -64,6 +67,7 @@ void read_control() {
   read_chanel(10);
   read_chanel(11);
   control_mode_flag = (servo_control[6] > 1800 )? 3 : (servo_control[6] < 1200)? 1 : 2;
+  delay(2);
 }
 
 void hand_control_mode(){
@@ -74,9 +78,13 @@ void hand_control_mode(){
    engine.write(servo_control[2]);
 }
 
-void stabilization_mode_data_update(double pitch_, double roll_){
-  pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), pitch_);                         
+void stabilization_mode_data_update(double pitch_, double roll_, double vy){
+  pitch_ctrl_effect_2 = pitch_pid.ctrl(((servo_control[8] - 1500.0) * (45.0/500.0)), -pitch_);                         
   roll_ctrl_effect_2  = roll_pid.ctrl(((servo_control[9] - 1500.0) * (45.0/500.0)), roll_);
+  
+  roll_ctrl_effect_3 = roll_ctrl_effect_2;
+  pitch_target_3      = vy_pid.ctrl(((servo_control[8] - 1500.0) * (5.0/500.0)), vy);
+  pitch_ctrl_effect_3 = pitch_pid.ctrl(pitch_target_3, -pitch_);
 }
 
 void control_servos(){
@@ -89,13 +97,22 @@ void control_servos(){
   }
   else{
     if(control_mode_flag == 2){
-       pitch_ctrl_effect = pitch_ctrl_effect_2;
-       roll_ctrl_effect  = roll_ctrl_effect_2;
+      pitch_ctrl_effect = pitch_ctrl_effect_2;
+      roll_ctrl_effect  = roll_ctrl_effect_2;
+    }
+    else if(control_mode_flag == 3){
+      pitch_ctrl_effect = pitch_ctrl_effect_3;
+      roll_ctrl_effect  = roll_ctrl_effect_3;
     }
     roll_ctrl_effect  = borders(1, -1, roll_ctrl_effect);
     pitch_ctrl_effect = borders(1, -1, pitch_ctrl_effect);
     
     eilerons_ctrl = -500*roll_ctrl_effect + 1500;
+    // trim_1 = (0.06 + (servo_control[5] - 1500.0)/1000.0*0.01);
+    // trim_2 = (0.5 + (servo_control[7] - 1500.0)/1000.0*0.01);
+    // pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect - trim_1) + 1500;
+    // pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - trim_2) + 1500;
+
     pgo_l_ctrl = -0.7 * 500*(pitch_ctrl_effect + 0.5) + 1500;
     pgo_r_ctrl = 0.7 * 500*(pitch_ctrl_effect - 0.35) + 1500;
 
