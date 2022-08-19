@@ -4,6 +4,7 @@
 #include "src/mpu9250_and_bmp/bmp180.h"
 #include "src/sd/SdFat_wrapper.h"
 #include "src/gps/gps.h"
+#include "src/piezo/piezo.h"
 #include "init.h"
 
 #define DATA_UPT_TASK_PERIOD  1  //millis
@@ -99,13 +100,11 @@ void data_update(void* pvParameters){
 void setup() {
   Serial.begin(115200);
   filestr="/data.txt";
-  if(INIT_GPS){init_gps();}
+  if(INIT_GPS){init_gps(); delay_piezo(1000)}
   init_mpu9250();
-  if(INIT_ALL_LOGS){sd_init();}
-  sd_write(filestr, HEADER+"\n");
-
+  if(INIT_ALL_LOGS){sd_init(); sd_write(filestr, HEADER+"\n"); delay_piezo(100);}
+  delay(1000);
   init_bmp(); 
-
   init_control();
   
   xBinarySemaphore = xSemaphoreCreateBinary();
